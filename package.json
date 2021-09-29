@@ -1,4 +1,14 @@
 {
   "name": "md-links",
-  "version": "0.1.0"
+  "version": "1.0.0",
+  "description": "Herramienta que lee y analiza archivos en formato Markdown, para verificar los links que contiene y reportar algunas estadísticas.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Diana Buitrago",
+  "license": "ISC",
+  "bin": {
+    "md-Links": "./md-links.js"
+  }
 }

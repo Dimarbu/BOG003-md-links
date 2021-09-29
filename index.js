@@ -1,3 +1,7 @@
-module.exports = () => {
-  // ...
+
+const mdLinks = (route, options) => {
+
+
 };
+
+module.exports = mdLinks;
