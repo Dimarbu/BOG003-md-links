@@ -23,6 +23,36 @@ const readDir = (route) => new Promise((resolve, reject) => {  //Lee los directo
     });
 });
 
+// const recursion = (route) => new Promise((resolve, reject) => {
+//     readDir(route)
+//     .then((archivos) => {
+//         let files = archivos.map((file) => {
+//             return recursion(file)
+//         })
+//         resolve(files)
+//     })
+    
+// })
+const extractFilesMd = (route) => new Promise((resolve, reject) => {
+    readDir(route)
+        .then((filesPath) => {
+            const filesMd = [];
+            let arrayFiles = filesPath.filter(filePath => path.extname(filePath) === '.md');
+            arrayFiles.map((element) => {
+                arrayFiles = path.join(route, element);
+                filesMd.push(arrayFiles)
+            });
+            //console.log(filesMd, 'Soy varios archivos md');
+            Promise.all(filesMd)
+                .then(() => {
+                    resolve(filesMd)
+                })
+                .catch((err) => {
+                    reject(err, 'No se pudo leer el archivo suministrado');
+                });
+        });
+});
+
 const readFiles = (fileName) => new Promise((resolve, reject) => {  //Lee los archivos
     fs.readFile(fileName, 'UTF-8', (error, file) => {
         error ? reject('No se puede leer el archivo suministrado') : resolve(file)
@@ -99,25 +129,12 @@ const validateLinks = (route) => new Promise((resolve, reject) => {
         });
 });
 
-const extractFilesMd = (route) => new Promise((resolve, reject) => {
-    readDir(route)
-        .then((filesPath) => {
-            const filesMd = [];
-            let arrayFiles = filesPath.filter(filePath => path.extname(filePath) === '.md');
-            arrayFiles.map((element) => {
-                arrayFiles = path.join(route, element);
-                filesMd.push(arrayFiles)
-            });
-            //console.log(filesMd, 'Soy varios archivos md');
-            Promise.all(filesMd)
-                .then(() => {
-                    resolve(filesMd)
-                })
-                .catch((err) => {
-                    reject(err, 'No se pudo leer el archivo suministrado');
-                });
-        });
-});
+const optionStats = (route) => new Promise((resolve, reject) =>{
+    getLinks(route)
+    .then((link) => {
+        console.log(link, 'stats');
+    })
+})
 
 const mdLinks = (route, options) => {
     return new Promise((resolve, reject) => {
@@ -136,13 +153,15 @@ const mdLinks = (route, options) => {
                 let alternatives = filesArray.map((elem) => {
                     if (options.validate && !options.stats) {
                         return validateLinks(elem);
+                    } else if (!options.validate && options.stats) {
+                        return optionStats(elem);
                     } else if (options) {
                         return getLinks(elem);
                     }
                 })
                 Promise.all(alternatives).then((res) => {
                     //console.log(res, 'soy res final');
-                    let finalArray = res.flatMap(final => [final]);
+                    let finalArray = res.flatMap((final) => final);
                     //let finalArray = [].concat.apply([], res);
                     resolve(finalArray);
                 }).catch(err => {
