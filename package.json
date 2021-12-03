@@ -9,7 +9,7 @@
   "author": "Diana Buitrago",
   "license": "ISC",
   "bin": {
-    "md-Links": "src/index.js"
+    "md-Links": "src/cli.js"
   },
   "dependencies": {
     "axios": "^0.22.0",
