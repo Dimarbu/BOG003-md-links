@@ -1,7 +1,6 @@
+const { isDirectory, extractFilesMd, validateLinks, getLinks, optionStats, optionStatsValidate } = require('./index.js');
+/* const { optionStats } = require('./statsoption.js'); */
 //const func = require("./index.js");
-const { isDirectory, extractFilesMd, validateLinks, getLinks, optionStats } = require('./index.js');
-
-
 
 const mdLinks = (route, options) => {
     return new Promise((resolve, reject) => {
@@ -10,23 +9,37 @@ const mdLinks = (route, options) => {
                 if (response) {
                     return extractFilesMd(route);
                 } else {
-                    //console.log([route], 'else');
                     return [route];
                 }
             })
             .then((filesPath) => {
-                const filesArray = filesPath;
-                let alternatives = filesArray.map((elem) => {
-                    if (options.validate && !options.stats) {
-                        return validateLinks(elem)
+                //const filesArray = filesPath;
+                //console.log(filesArray, 'filesArray');
+                let filesArray = filesPath.map((file) => {
+                    return getLinks(file).then((links) => {
+                        if (options.validate && !options.stats) {
+                            return validateLinks(file);
+                        }
+                        if (!options.validate && options.stats) {
+                            return optionStats(file);
+                        }
+                        if (!!options.validate && !!options.stats) {
+                            return optionStatsValidate(file);
+                        }
+                        return links;
+
+                    })
+
+                    /* if (options.validate && !options.stats) {
+                        return validateLinks(file)
                     } else if (!options.validate && options.stats) {
-                        return optionStats(elem);
+                        return optionStats(file);
                     } else if (options) {
-                        return getLinks(elem);
-                    }
+
+                    } */
                 })
-                Promise.all(alternatives).then((res) => {
-                    console.log(res, 'soy res final');
+                Promise.all(filesArray).then((res) => {
+                    //console.log(res, 'soy res final');
                     let finalArray = res.flatMap((final) => final);
                     //let finalArray = [].concat.apply([], res);
                     resolve(finalArray);
@@ -34,8 +47,6 @@ const mdLinks = (route, options) => {
                     reject(err)
                 })
             })
-
-
     })
 };
 
